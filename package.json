@@ -1,0 +1,19 @@
+{
+  "name": "hsx",
+  "version": "1.0.0",
+  "description": "HSX automation",
+  "main": "index.js",
+  "repository": "https://github.com/ali-l/hsx",
+  "author": "Alishan Ladhani <alishan.ladhani@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "webpack --mode production"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.0.0-beta.40",
+    "@babel/preset-env": "^7.0.0-beta.40",
+    "babel-loader": "8.0.0-beta.2",
+    "webpack": "^4.1.1",
+    "webpack-cli": "^2.0.11"
+  }
+}
