@@ -21,7 +21,8 @@ module.exports = {
                 targets: { node: '6.10.3' },
               	modules: false,
               }]
-            ]
+            ],
+            plugins: ['@babel/plugin-proposal-class-properties']
           }
         }
       }

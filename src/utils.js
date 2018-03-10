@@ -14,3 +14,7 @@ export const fetch = (url) => {
       .on('error', reject)
   })
 };
+
+export const unixTime = () => {
+  return Math.floor(Date.now() / 1000)
+};
