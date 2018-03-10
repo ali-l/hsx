@@ -5,7 +5,7 @@ export default class Bond {
   static create(ticker, price) {
     let item = {
       ticker: { S: ticker },
-      price: { N: (price * 100).toString() },
+      price: { N: price.toString() },
       modifiedAt: { N: unixTime().toString() }
     };
 
