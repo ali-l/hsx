@@ -16,8 +16,7 @@ export default class Bond {
     let item = {
       ticker: { S: ticker },
       price: { N: price.toString() },
-      credits: { L: formatCredits(credits) },
-      modifiedAt: { N: Date.now().toString() }
+      credits: { L: formatCredits(credits) }
     };
 
     return new Promise((resolve, reject) => {
