@@ -16,7 +16,7 @@ export default ({ Records }, context, callback) => {
 
         let bondPage = new BondPage(html);
 
-        Bond.create(ticker, bondPage.price)
+        Bond.create(ticker, bondPage.price, bondPage.credits)
       } else {
         console.log('Record has no new image', streamRecord)
       }
