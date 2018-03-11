@@ -1,8 +1,15 @@
 import cheerio from 'cheerio'
+import {fetch, BASE_URL} from '../utils'
 
 const priceRegex = /H\$(\d{1,3})\.(\d{2})H\$/;
 
 export default class BondPage {
+
+  static async fromTicker(ticker) {
+    let html = await fetch(BASE_URL + ticker);
+    return new this(html)
+  }
+
   constructor(html) {
     this.page = cheerio.load(html)
   }
