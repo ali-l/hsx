@@ -15,8 +15,4 @@ export const fetch = (url) => {
   })
 };
 
-export const unixTime = () => {
-  return Math.floor(Date.now() / 1000)
-};
-
 export const BASE_URL = 'https://www.hsx.com/security/view/';
