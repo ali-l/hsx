@@ -1,12 +1,11 @@
 import Security from './tables/Security'
-import {unixTime} from "../utils";
 
 export default class Bond {
   static create(ticker, price) {
     let item = {
       ticker: { S: ticker },
       price: { N: price.toString() },
-      modifiedAt: { N: unixTime().toString() }
+      modifiedAt: { N: Date.now().toString() }
     };
 
     return new Promise((resolve, reject) => {
