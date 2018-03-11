@@ -12,11 +12,17 @@ const formatCredits = (credits) => {
 };
 
 export default class Bond {
-  static create(ticker, price, credits) {
+  constructor(ticker, price, credits) {
+    this.ticker = ticker;
+    this.price = price;
+    this.credits = credits
+  }
+
+  save() {
     let item = {
-      ticker: { S: ticker },
-      price: { N: price.toString() },
-      credits: { L: formatCredits(credits) }
+      ticker: { S: this.ticker },
+      price: { N: this.price.toString() },
+      credits: { L: formatCredits(this.credits) }
     };
 
     return new Promise((resolve, reject) => {

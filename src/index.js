@@ -11,7 +11,7 @@ export default ({ Records }, context, callback) => {
         let ticker = record.starBond.S;
         let bondPage = await BondPage.fromTicker(ticker);
 
-        Bond.create(ticker, bondPage.price, bondPage.credits)
+        new Bond(ticker, bondPage.price, bondPage.credits).save()
       } else {
         console.log('Record has no new image', streamRecord)
       }
