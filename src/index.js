@@ -8,7 +8,8 @@ export default ({ Records }, context, callback) => {
 
       if (record) {
         let ticker = record.starBond.S;
-        Bond.find(ticker).save()
+        let bond = await Bond.find(ticker);
+        bond.save()
       } else {
         console.log('Record has no new image', streamRecord)
       }

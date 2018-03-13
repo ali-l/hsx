@@ -1,5 +1,6 @@
 import Security from './tables/Security'
 import BondPage from '../pages/BondPage'
+import {fetch, BASE_URL} from '../utils'
 
 const formatCredits = (credits) => {
   return credits.map(credit => {
@@ -13,8 +14,8 @@ const formatCredits = (credits) => {
 };
 
 export default class Bond {
-  static find(ticker) {
-    let page = BondPage.fromTicker(ticker);
+  static async find(ticker) {
+    let page = BondPage.new(await fetch(BASE_URL + ticker));
     new this(ticker, page.price, page.credits)
   }
 
