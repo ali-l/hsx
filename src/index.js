@@ -1,5 +1,4 @@
 import Bond from './models/Bond'
-import BondPage from './pages/BondPage'
 
 // noinspection JSUnusedGlobalSymbols
 export default ({ Records }, context, callback) => {
@@ -9,9 +8,7 @@ export default ({ Records }, context, callback) => {
 
       if (record) {
         let ticker = record.starBond.S;
-        let bondPage = await BondPage.fromTicker(ticker);
-
-        new Bond(ticker, bondPage.price, bondPage.credits).save()
+        Bond.find(ticker).save()
       } else {
         console.log('Record has no new image', streamRecord)
       }

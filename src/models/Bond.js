@@ -1,4 +1,5 @@
 import Security from './tables/Security'
+import BondPage from '../pages/BondPage'
 
 const formatCredits = (credits) => {
   return credits.map(credit => {
@@ -12,6 +13,11 @@ const formatCredits = (credits) => {
 };
 
 export default class Bond {
+  static find(ticker) {
+    let page = BondPage.fromTicker(ticker);
+    new this(ticker, page.price, page.credits)
+  }
+
   constructor(ticker, price, credits) {
     this.ticker = ticker;
     this.price = price;
