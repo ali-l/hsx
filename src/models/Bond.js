@@ -13,16 +13,31 @@ const formatCredits = (credits) => {
   })
 };
 
+const THREE_MONTHS = 7257600000; // Limited releases take ~ three months to get added to TAG
+// Wide releases added to TAG on the 25th day after the release
+
+
 export default class Bond {
   static async find(ticker) {
-    let page = BondPage.new(await fetch(BASE_URL + ticker));
-    new this(ticker, page.price, page.credits)
+    let page = new BondPage(await fetch(BASE_URL + ticker));
+    return new this(ticker, page.price, page.credits)
   }
 
   constructor(ticker, price, credits) {
     this.ticker = ticker;
     this.price = price;
     this.credits = credits
+  }
+
+  get stocksPotentiallyInCurrentTag() {
+    return this.credits
+      .filter(credit => credit.releaseDate && (credit.releaseDate + THREE_MONTHS) < Date.now())
+      .slice(0, 5)
+  }
+
+  get stocksPotentiallyInFutureTag() {
+    return this.credits
+      .filter(credit => credit.releaseDate && (credit.releaseDate + THREE_MONTHS) > Date.now())
   }
 
   save() {
