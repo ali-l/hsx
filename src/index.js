@@ -1,52 +1,20 @@
 import Bond from './models/Bond'
 import Job from './models/Job'
 
-const BOND = 'BOND';
-const STOCK = 'STOCK';
-
 const processBond = async (job) => {
   console.log('processing bond', job);
-
-  let bond = await Bond.find(job.ticker);
-
-  if (job.fetchStocks) {
-    let credits = bond.creditsAffectingTAG;
-
-    for (let { ticker } of credits) {
-      await Job.create({ type: STOCK, ticker: ticker })
-    }
-
-    await Job.create({ type: BOND, ticker: job.ticker, fetchStocks: false })
-  } else {
-    await bond.calculateCurrentTAG();
-    await bond.save();
-  }
-};
-
-const processStock = (job) => {
-  console.log('processing stock', job)
+  const bond = await Bond.find(job.ticker);
+  await bond.calculateCurrentTAG();
+  await bond.save();
 };
 
 // noinspection JSUnusedGlobalSymbols
 export default async ({ Records }, context, callback) => {
   for (let streamRecord of Records) {
-    let record = streamRecord.dynamodb.NewImage;
+    const record = streamRecord.dynamodb.NewImage;
+    if (!record) continue;
 
-    if (record) {
-      let job = Job.fromStreamRecord(record);
-
-      if (job.type === BOND) {
-        await processBond(job)
-      } else if (job.type === STOCK) {
-        await processStock(job)
-      } else {
-        // noinspection ExceptionCaughtLocallyJS
-        throw new Error('Not a stock or bond')
-      }
-
-    } else {
-      console.log('Record has no new image', streamRecord)
-    }
+    await processBond(Job.fromStreamRecord(record))
   }
 
   callback(null)

@@ -8,26 +8,21 @@ const client = new DynamoDB.DocumentClient({
 });
 
 export default class Job {
-  static create({ ticker, type, fetchStocks }) {
+  // noinspection JSUnusedGlobalSymbols
+  static create({ ticker }) {
     return new Promise((resolve, reject) => {
       // noinspection JSUnusedLocalSymbols
-      client.put({ Item: { ticker, type, fetchStocks } }, (err, _data) => {
-        err ? reject(err) : resolve(new Job({ticker, type, fetchStocks}))
+      client.put({ Item: { ticker } }, (err, _data) => {
+        err ? reject(err) : resolve(new Job({ ticker }))
       })
     })
   }
 
   static fromStreamRecord(streamRecord) {
-    const ticker = streamRecord.ticker.S;
-    const type = streamRecord.type.S;
-    const fetchStocks = streamRecord.fetchStocks && streamRecord.fetchStocks.BOOL;
-
-    return new Job({ticker, type, fetchStocks})
+    return new Job({ ticker: streamRecord.ticker.S })
   }
 
-  constructor({ticker, type, fetchStocks}) {
+  constructor({ ticker }) {
     this.ticker = ticker;
-    this.type = type;
-    this.fetchStocks = fetchStocks
   }
 }
