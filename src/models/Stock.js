@@ -25,19 +25,20 @@ async function getFromSite(ticker) {
 
 export default class Stock {
   static async find(ticker) {
-    const dynamoRecord = await getFromDynamo(ticker);
+    const dynamoAttributes = await getFromDynamo(ticker);
 
-    if (dynamoRecord && (Date.now() - dynamoRecord.updatedAt) < ONE_DAY) {
+    if (dynamoAttributes && (Date.now() - dynamoAttributes.updatedAt) < ONE_DAY) {
       console.log('using ', ticker, ' from dynamo');
 
-      return new this(dynamoRecord)
+      return new this(dynamoAttributes)
     } else {
       console.log('fetching ', ticker, ' from site');
+      const siteAttributes = await getFromSite(ticker);
 
-      const siteRecord = await getFromSite(ticker);
-      client.put({ Item: { ticker, ...siteRecord, updatedAt: Date.now() } }, () => {});
+      const stock = new this({ ticker, ...siteAttributes });
+      stock.save();
 
-      return new this({ ticker, ...siteRecord })
+      return stock
     }
   }
 
@@ -49,5 +50,13 @@ export default class Stock {
     // noinspection JSUnusedGlobalSymbols
     this.active = active;
     this.delistDate = delistDate
+  }
+
+  save() {
+    return new Promise((resolve, reject) => {
+      client.put({ Item: { ...this, updatedAt: Date.now() } }, (err, data) => {
+        err ? reject(err) : resolve(data)
+      })
+    })
   }
 }

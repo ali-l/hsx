@@ -4,6 +4,7 @@ import mapBondPage from '../mappers/mapBondPage'
 import {fetch, BASE_URL} from '../utils'
 import Stock from "./Stock";
 
+const ONE_DAY = 86400000;
 const THREE_MONTHS = 7257600000; // Limited releases take ~ three months to get added to TAG
 // Wide releases added to TAG on the 25th day after the release
 
@@ -17,16 +18,36 @@ async function getFromSite(ticker) {
   return mapBondPage(await fetch(BASE_URL + ticker));
 }
 
+async function getFromDynamo(ticker) {
+  return new Promise((resolve, reject) => {
+    client.get({ Key: { ticker } }, (err, { Item }) => {
+      err ? reject(err) : resolve(Item)
+    })
+  })
+}
+
 export default class Bond {
   static async find(ticker) {
-    const siteRecord = await getFromSite(ticker);
-    return new this({ticker, ...siteRecord})
+    const dynamoAttributes = await getFromDynamo(ticker);
+
+    if (dynamoAttributes && (Date.now() - dynamoAttributes.updatedAt) < ONE_DAY) {
+      console.log('using ', ticker, ' from dynamo');
+
+      return new this(dynamoAttributes)
+    } else {
+      console.log('fetching ', ticker, ' from site');
+      const siteAttributes = await getFromSite(ticker);
+
+      return new this({ ticker, ...siteAttributes });
+    }
   }
 
-  constructor({ticker, price, credits, TAG}) {
+  constructor({ ticker, price, credits, TAG }) {
     this.ticker = ticker;
+    // noinspection JSUnusedGlobalSymbols
     this.price = price;
     this.credits = credits;
+    // noinspection JSUnusedGlobalSymbols
     this.TAG = TAG
   }
 
@@ -76,6 +97,7 @@ export default class Bond {
     let sum = prices.reduce((sum, val) => sum + val);
     let TAG = sum / (prices.length < 3 ? 3 : prices.length);
 
+    // noinspection JSUnusedGlobalSymbols
     this.TAG = Math.round(TAG)
   }
 
@@ -83,11 +105,10 @@ export default class Bond {
   //
   // }
 
+  // noinspection JSUnusedGlobalSymbols
   save() {
-    const item = { ticker: this.ticker, price: this.price, credits: this.credits, TAG: this.TAG };
-
     return new Promise((resolve, reject) => {
-      client.put({ Item: item }, (err, data) => {
+      client.put({ Item: { ...this, updatedAt: Date.now() } }, (err, data) => {
         err ? reject(err) : resolve(data)
       })
     })
