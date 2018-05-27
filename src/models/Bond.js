@@ -1,6 +1,6 @@
 // noinspection ES6CheckImport
 import DynamoDB from 'aws-sdk/clients/dynamodb';
-import BondPage from '../pages/BondPage'
+import mapBondPage from '../mappers/mapBondPage'
 import {fetch, BASE_URL} from '../utils'
 import Stock from "./Stock";
 
@@ -13,17 +13,21 @@ const client = new DynamoDB.DocumentClient({
   region: 'us-east-1'
 });
 
+async function getFromSite(ticker) {
+  return mapBondPage(await fetch(BASE_URL + ticker));
+}
+
 export default class Bond {
   static async find(ticker) {
-    let page = new BondPage(await fetch(BASE_URL + ticker));
-    return new this(ticker, page.price, page.credits)
+    const siteRecord = await getFromSite(ticker);
+    return new this({ticker, ...siteRecord})
   }
 
-  constructor(ticker, price, credits) {
+  constructor({ticker, price, credits, TAG}) {
     this.ticker = ticker;
     this.price = price;
     this.credits = credits;
-    this.TAG = null
+    this.TAG = TAG
   }
 
   get creditsAffectingTAG() {

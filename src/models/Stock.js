@@ -1,6 +1,6 @@
 // noinspection ES6CheckImport
 import DynamoDB from 'aws-sdk/clients/dynamodb';
-import mapStockPage from '../pages/mapStockPage'
+import mapStockPage from '../mappers/mapStockPage'
 import {fetch, BASE_URL} from '../utils'
 
 const client = new DynamoDB.DocumentClient({
