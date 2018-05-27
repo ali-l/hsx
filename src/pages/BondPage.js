@@ -9,10 +9,9 @@ export default class BondPage {
 
   get price() {
     let string = this.page('#container > div.column-row > div.four.columns.last > div:nth-child(2) > div > p.value').text();
+    let matches = priceRegex.exec(string);
 
-    return Number.parseInt(
-      priceRegex.exec(string)[1] + priceRegex.exec(string)[2]
-    );
+    return parseInt(matches[1] + matches[2])
   }
 
   get credits() {
