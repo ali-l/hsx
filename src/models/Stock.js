@@ -1,6 +1,6 @@
 // noinspection ES6CheckImport
 import DynamoDB from 'aws-sdk/clients/dynamodb';
-import StockPage from '../pages/StockPage'
+import mapStockPage from '../pages/mapStockPage'
 import {fetch, BASE_URL} from '../utils'
 
 const client = new DynamoDB.DocumentClient({
@@ -9,28 +9,36 @@ const client = new DynamoDB.DocumentClient({
   region: 'us-east-1'
 });
 
+const ONE_DAY = 86400000;
+
+async function getFromDynamo(ticker) {
+  return new Promise((resolve, reject) => {
+    client.get({ Key: { ticker } }, (err, { Item }) => {
+      err ? reject(err) : resolve(Item)
+    })
+  })
+}
+
+async function getFromSite(ticker) {
+  return mapStockPage(await fetch(BASE_URL + ticker));
+}
+
 export default class Stock {
   static async find(ticker) {
-    let page = new StockPage(await fetch(BASE_URL + ticker));
-    let attributes = {
-      ticker,
-      price: page.price,
-      gross: page.gross,
-      active: page.active,
-      delistDate: page.delistDate
-    };
+    const dynamoRecord = await getFromDynamo(ticker);
 
-    client.put({Item: attributes}, (err, data) => {});
+    if (dynamoRecord && (Date.now() - dynamoRecord.updatedAt) < ONE_DAY) {
+      console.log('using ', ticker, ' from dynamo');
 
-    return new this(attributes)
-    // return new Promise((resolve, reject) => {
-    //   Security.client.getItem({
-    //     Key: { S: ticker },
-    //     ConsistentRead: true
-    //   }, (err, data) => {
-    //     err ? reject(err) : resolve(data)
-    //   })
-    // })
+      return new this(dynamoRecord)
+    } else {
+      console.log('fetching ', ticker, ' from site');
+
+      const siteRecord = await getFromSite(ticker);
+      client.put({ Item: { ticker, ...siteRecord, updatedAt: Date.now() } }, () => {});
+
+      return new this({ ticker, ...siteRecord })
+    }
   }
 
   constructor({ ticker, price, gross, active, delistDate }) {

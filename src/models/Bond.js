@@ -65,6 +65,7 @@ export default class Bond {
         .slice(0, 5);
 
     for (let stock of stocks) {
+      console.log('including stock ', stock.ticker, ' at gross ', stock.gross);
       prices.push(stock.gross > 25000 ? 25000 : stock.gross)
     }
 
