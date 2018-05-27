@@ -1,21 +1,17 @@
-import Security from './tables/Security'
+// noinspection ES6CheckImport
+import DynamoDB from 'aws-sdk/clients/dynamodb';
 import BondPage from '../pages/BondPage'
 import {fetch, BASE_URL} from '../utils'
-
-const formatCredits = (credits) => {
-  return credits.map(credit => {
-    return {
-      M: {
-        ticker: { S: credit.ticker },
-        releaseDate: credit.releaseDate ? { N: credit.releaseDate.toString() } : { NULL: true }
-      }
-    }
-  })
-};
+import Stock from "./Stock";
 
 const THREE_MONTHS = 7257600000; // Limited releases take ~ three months to get added to TAG
 // Wide releases added to TAG on the 25th day after the release
 
+const client = new DynamoDB.DocumentClient({
+  apiVersion: '2012-08-10',
+  params: { TableName: 'hsx_securities' },
+  region: 'us-east-1'
+});
 
 export default class Bond {
   static async find(ticker) {
@@ -26,29 +22,26 @@ export default class Bond {
   constructor(ticker, price, credits) {
     this.ticker = ticker;
     this.price = price;
-    this.credits = credits
+    this.credits = credits;
+    this.TAG = null
   }
 
-  get stocksPotentiallyInCurrentTag() {
+  get creditsPotentiallyInCurrentTAG() {
     return this.credits
       .filter(credit => credit.releaseDate && (credit.releaseDate + THREE_MONTHS) < Date.now())
       .slice(0, 5)
   }
 
-  get stocksPotentiallyInFutureTag() {
+  get creditsPotentiallyInFutureTAG() {
     return this.credits
       .filter(credit => credit.releaseDate && (credit.releaseDate + THREE_MONTHS) > Date.now())
   }
 
   save() {
-    let item = {
-      ticker: { S: this.ticker },
-      price: { N: this.price.toString() },
-      credits: { L: formatCredits(this.credits) }
-    };
+    const item = { ticker: this.ticker, price: this.price, credits: this.credits, TAG: this.TAG };
 
     return new Promise((resolve, reject) => {
-      Security.client.putItem({ Item: item }, (err, data) => {
+      client.put({ Item: item }, (err, data) => {
         err ? reject(err) : resolve(data)
       })
     })
