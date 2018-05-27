@@ -7,7 +7,7 @@ function convertGrossDollarsToStockPrice(dollars) {
 }
 
 function active(page) {
-  return page('#container > div.column-row > div.eight.columns > div.whitebox_content > div.security_data > div.data_column.left_col > table > tbody > tr:nth-child(2) > td:nth-child(2)').text() === 'Active'
+  return page('#container > div.column-row > div.eight.columns > div.whitebox_content > div.security_data > div.data_column.left_col > table > tbody > tr:nth-child(2) > td:nth-child(2)').text() !== 'Inactive'
 }
 
 function releaseDate(page) {

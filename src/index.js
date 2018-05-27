@@ -1,9 +1,9 @@
 import Bond from './models/Bond'
 import Job from './models/Job'
 
-const processBond = async (job) => {
-  console.log('processing bond', job);
-  const bond = await Bond.find(job.ticker);
+const processBond = async ({ ticker }) => {
+  console.log('processing bond', ticker);
+  const bond = await Bond.find(ticker);
   await bond.calculateCurrentTAG();
   await bond.save();
 };
