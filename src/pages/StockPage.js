@@ -20,10 +20,12 @@ export default class StockPage {
   }
 
   get gross() {
-    const grossString = this.page('#container > div.column-row > div.eight.columns > div.whitebox_content > div.security_data > div.data_column.last > table > tbody > tr:nth-child(4) > td:nth-child(2)').text();
+    const fourthColumnTitle = this.page('#container > div.column-row > div.eight.columns > div.whitebox_content > div.security_data > div.data_column.last > table > tbody > tr:nth-child(4) > td.label').text();
+    const column = fourthColumnTitle === 'Gross:' ? 4 : 3;
+    const grossString = this.page(`#container > div.column-row > div.eight.columns > div.whitebox_content > div.security_data > div.data_column.last > table > tbody > tr:nth-child(${column}) > td:nth-child(2)`).text();
 
     if (grossString === 'n/a') {
-      return 0
+      return null
     } else {
       const [a, b, c] = grossString.slice(1).split(',').map(n => parseInt(n));
 
