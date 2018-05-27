@@ -37,6 +37,25 @@ export default class Bond {
       .filter(credit => credit.releaseDate && (credit.releaseDate + THREE_MONTHS) > Date.now())
   }
 
+  async calculateCurrentTAG() {
+    console.log('calculating TAG for ', this.ticker);
+
+    let prices = [];
+
+    for (let { ticker } of this.creditsPotentiallyInCurrentTAG) {
+      let stock = await Stock.find(ticker);
+      prices.push(stock.price > 25000 ? 25000 : stock.price)
+    }
+
+    let sum = prices.reduce((sum, val) => sum + val);
+
+    this.TAG = sum / (prices.length < 3 ? 3 : prices.length)
+  }
+
+  // calculateFutureTAG() {
+  //
+  // }
+
   save() {
     const item = { ticker: this.ticker, price: this.price, credits: this.credits, TAG: this.TAG };
 
