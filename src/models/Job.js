@@ -1,5 +1,6 @@
 // noinspection ES6CheckImport
-import DynamoDB from 'aws-sdk/clients/dynamodb';
+import DynamoDB from 'aws-sdk/clients/dynamodb'
+import { unixTimestamp } from '../utils'
 
 const client = new DynamoDB.DocumentClient({
   apiVersion: '2012-08-10',
@@ -7,14 +8,12 @@ const client = new DynamoDB.DocumentClient({
   region: 'us-east-1'
 });
 
-function unixTimestamp() {
-  return Math.round(Date.now() / 1000)
-}
-
 function mapStreamRecord(streamRecord) {
   return {
-    ticker: streamRecord.ticker.S,
-    type: streamRecord.type.S
+    id: streamRecord.id.N,
+    type: streamRecord.type.S,
+    ticker: streamRecord.ticker && streamRecord.ticker.S,
+    tickerList: streamRecord.tickerList && streamRecord.tickerList.SS
   }
 }
 
@@ -25,15 +24,19 @@ export default class Job {
 
     job.save();
 
-    return job;
+    return job
   }
 
   static fromStreamRecord(streamRecord) {
     return new Job(mapStreamRecord(streamRecord))
   }
 
-  constructor({ ticker, type }) {
+  constructor({ id, type, ticker, tickerList }) {
+    // noinspection JSUnusedGlobalSymbols
+    this.id = id || Math.round(Math.random() * 1000);
     this.ticker = ticker;
+    // noinspection JSUnusedGlobalSymbols
+    this.tickerList = tickerList;
     // noinspection JSUnusedGlobalSymbols
     this.type = type
   }

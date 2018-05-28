@@ -1,6 +1,6 @@
 import https from 'https'
 
-export const fetch = (url) => {
+export function fetch(url) {
   return new Promise((resolve, reject) => {
     https
       .get(url, resp => {
@@ -13,6 +13,10 @@ export const fetch = (url) => {
       })
       .on('error', reject)
   })
-};
+}
+
+export function unixTimestamp() {
+  return Math.round(Date.now() / 1000)
+}
 
 export const BASE_URL = 'https://www.hsx.com/security/view/';
