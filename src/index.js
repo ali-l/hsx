@@ -1,6 +1,8 @@
 import Bond from './models/Bond'
 import Job from './models/Job'
 
+const BOND_TYPE = 'BOND';
+
 const processBond = async ({ ticker }) => {
   console.log('processing bond', ticker);
   const bond = await Bond.find(ticker);
@@ -14,7 +16,11 @@ export default async ({ Records }, context, callback) => {
     const record = streamRecord.dynamodb.NewImage;
     if (!record) continue;
 
-    await processBond(Job.fromStreamRecord(record))
+    const job = Job.fromStreamRecord(record);
+
+    if (job.type === BOND_TYPE) {
+      await processBond(job)
+    }
   }
 
   callback(null)
