@@ -9,7 +9,8 @@ const client = new DynamoDB.DocumentClient({
   region: 'us-east-1'
 });
 
-const ONE_DAY = 86400000;
+const ONE_DAY_AGO = Date.now() - 86400000;
+const SIX_MONTHS_AGO = Date.now() - 15552000000;
 
 async function getFromDynamo(ticker) {
   return new Promise((resolve, reject) => {
@@ -27,19 +28,19 @@ export default class Stock {
   static async find(ticker) {
     const dynamoAttributes = await getFromDynamo(ticker);
 
-    if (dynamoAttributes && (Date.now() - dynamoAttributes.updatedAt) < ONE_DAY) {
-      console.log('using ', ticker, ' from dynamo');
+    let stock = dynamoAttributes && new this(dynamoAttributes);
 
-      return new this(dynamoAttributes)
-    } else {
+    if (!stock || stock._shouldRefresh()) {
       console.log('fetching ', ticker, ' from site');
+
       const siteAttributes = await getFromSite(ticker);
-
-      const stock = new this({ ticker, ...siteAttributes });
-      stock.save();
-
-      return stock
+      stock = new this({ ticker, ...siteAttributes });
+      stock.save()
+    } else {
+      console.log('using ', ticker, ' from dynamo');
     }
+
+    return stock
   }
 
   constructor({ ticker, price, gross, active, delistDate, updatedAt }) {
@@ -51,6 +52,10 @@ export default class Stock {
     this.active = active;
     this.delistDate = delistDate;
     this.updatedAt = updatedAt || Date.now()
+  }
+
+  _shouldRefresh() {
+    return this.delistDate < SIX_MONTHS_AGO ? false : this.updatedAt < ONE_DAY_AGO
   }
 
   save() {
