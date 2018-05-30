@@ -13,7 +13,7 @@ function mapStreamRecord(streamRecord) {
     id: streamRecord.id.N,
     type: streamRecord.type.S,
     ticker: streamRecord.ticker && streamRecord.ticker.S,
-    tickerList: streamRecord.tickerList && streamRecord.tickerList.SS
+    tickerList: streamRecord.tickerList && (streamRecord.tickerList.SS || JSON.parse(streamRecord.tickerList.S))
   }
 }
 
