@@ -1,5 +1,6 @@
 import Bond from './models/Bond'
 import Job from './models/Job'
+import sendEmail from './sendEmail';
 
 const BOND_TYPE = 'BOND';
 const BOND_BATCH_TYPE = 'BOND_BATCH';
@@ -19,11 +20,16 @@ async function processBondBatch({ tickerList }) {
     await Job.create({ type: BOND_TYPE, ticker: ticker })
   }
 
-  await Job.create({ type: EMAIL_REPORT_TYPE, tickerList: tickerList})
+  await Job.create({ type: EMAIL_REPORT_TYPE, tickerList: tickerList })
 }
 
-async function processEmailreport({ tickerList }) {
+async function processEmailReport({ tickerList }) {
   console.log('processing email report for ', tickerList);
+  let bonds = [];
+  for (let ticker of tickerList) bonds.push(await Bond.find(ticker))
+
+  const message = bonds.map(bond => ({ ticker: bond.ticker, TAG: bond.TAG / 100 }));
+  sendEmail(message)
 }
 
 // noinspection JSUnusedGlobalSymbols
@@ -39,7 +45,7 @@ export default async ({ Records }, context, callback) => {
     } else if (job.type === BOND_BATCH_TYPE) {
       await processBondBatch(job)
     } else if (job.type === EMAIL_REPORT_TYPE) {
-      await processEmailreport(job)
+      await processEmailReport(job)
     }
   }
 
