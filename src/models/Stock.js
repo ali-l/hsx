@@ -42,19 +42,20 @@ export default class Stock {
     }
   }
 
-  constructor({ ticker, price, gross, active, delistDate }) {
+  constructor({ ticker, price, gross, active, delistDate, updatedAt }) {
     this.ticker = ticker;
     // noinspection JSUnusedGlobalSymbols
     this.price = price;
     this.gross = gross;
     // noinspection JSUnusedGlobalSymbols
     this.active = active;
-    this.delistDate = delistDate
+    this.delistDate = delistDate;
+    this.updatedAt = updatedAt || Date.now()
   }
 
   save() {
     return new Promise((resolve, reject) => {
-      client.put({ Item: { ...this, updatedAt: Date.now() } }, (err, data) => {
+      client.put({ Item: { ...this } }, (err, data) => {
         err ? reject(err) : resolve(data)
       })
     })

@@ -13,7 +13,7 @@ async function processBond({ ticker }) {
 }
 
 async function processBondBatch({ tickerList }) {
-  console.log('processing health check for ', tickerList);
+  console.log('processing bond batch ', tickerList);
 
   for (let ticker of tickerList) {
     await Job.create({ type: BOND_TYPE, ticker: ticker })

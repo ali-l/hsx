@@ -42,13 +42,14 @@ export default class Bond {
     }
   }
 
-  constructor({ ticker, price, credits, TAG }) {
+  constructor({ ticker, price, credits, TAG, updatedAt }) {
     this.ticker = ticker;
     // noinspection JSUnusedGlobalSymbols
     this.price = price;
     this.credits = credits;
     // noinspection JSUnusedGlobalSymbols
-    this.TAG = TAG
+    this.TAG = TAG;
+    this.updatedAt = updatedAt || Date.now()
   }
 
   get creditsAffectingTAG() {
@@ -108,7 +109,7 @@ export default class Bond {
   // noinspection JSUnusedGlobalSymbols
   save() {
     return new Promise((resolve, reject) => {
-      client.put({ Item: { ...this, updatedAt: Date.now() } }, (err, data) => {
+      client.put({ Item: { ...this } }, (err, data) => {
         err ? reject(err) : resolve(data)
       })
     })
