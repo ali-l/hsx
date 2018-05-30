@@ -8,21 +8,25 @@ const client = new DynamoDB.DocumentClient({
   region: 'us-east-1'
 });
 
+function mapTickerList(list) {
+  return list
+    .map(stringObject => stringObject.S)
+}
+
 function mapStreamRecord(streamRecord) {
   return {
     id: streamRecord.id.N,
     type: streamRecord.type && streamRecord.type.S,
     ticker: streamRecord.ticker && streamRecord.ticker.S,
     tickerList: streamRecord.tickerList &&
-    (streamRecord.tickerList.SS || streamRecord.tickerList.S && JSON.parse(streamRecord.tickerList.S))
+    (streamRecord.tickerList.L && mapTickerList(streamRecord.tickerList.L)
+      || streamRecord.tickerList.S && JSON.parse(streamRecord.tickerList.S))
   }
 }
 
 export default class Job {
-  // noinspection JSUnusedGlobalSymbols
   static create(attributes) {
     const job = new Job(attributes);
-
     job.save();
 
     return job
@@ -36,13 +40,10 @@ export default class Job {
     // noinspection JSUnusedGlobalSymbols
     this.id = id || Math.round(Math.random() * 1000);
     this.ticker = ticker;
-    // noinspection JSUnusedGlobalSymbols
     this.tickerList = tickerList;
-    // noinspection JSUnusedGlobalSymbols
     this.type = type
   }
 
-  // noinspection JSUnusedGlobalSymbols
   save() {
     return new Promise((resolve, reject) => {
       client.put({ Item: { ...this, expireAt: unixTimestamp() } }, (err, data) => {
