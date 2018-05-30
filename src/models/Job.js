@@ -11,7 +11,7 @@ const client = new DynamoDB.DocumentClient({
 function mapStreamRecord(streamRecord) {
   return {
     id: streamRecord.id.N,
-    type: streamRecord.type.S,
+    type: streamRecord.type && streamRecord.type.S,
     ticker: streamRecord.ticker && streamRecord.ticker.S,
     tickerList: streamRecord.tickerList &&
     (streamRecord.tickerList.SS || streamRecord.tickerList.S && JSON.parse(streamRecord.tickerList.S))
