@@ -2,7 +2,8 @@ import Bond from './models/Bond'
 import Job from './models/Job'
 
 const BOND_TYPE = 'BOND';
-const HEALTH_CHECK_TYPE = 'HEALTH_CHECK';
+const BOND_BATCH_TYPE = 'BOND_BATCH';
+const EMAIL_REPORT_TYPE = 'EMAIL_REPORT';
 
 async function processBond({ ticker }) {
   console.log('processing bond ', ticker);
@@ -11,14 +12,18 @@ async function processBond({ ticker }) {
   await bond.save();
 }
 
-async function processHealthCheck({ tickerList }) {
+async function processBondBatch({ tickerList }) {
   console.log('processing health check for ', tickerList);
 
   for (let ticker of tickerList) {
     await Job.create({ type: BOND_TYPE, ticker: ticker })
   }
 
-  // await Job.create({ type: EMAIL_REPORT_TYPE, tickerList: tickerList})
+  await Job.create({ type: EMAIL_REPORT_TYPE, tickerList: tickerList})
+}
+
+async function processEmailreport({ tickerList }) {
+  console.log('processing email report for ', tickerList);
 }
 
 // noinspection JSUnusedGlobalSymbols
@@ -31,8 +36,10 @@ export default async ({ Records }, context, callback) => {
 
     if (job.type === BOND_TYPE) {
       await processBond(job)
-    } else if (job.type === HEALTH_CHECK_TYPE) {
-      await processHealthCheck(job)
+    } else if (job.type === BOND_BATCH_TYPE) {
+      await processBondBatch(job)
+    } else if (job.type === EMAIL_REPORT_TYPE) {
+      await processEmailreport(job)
     }
   }
 
