@@ -5,14 +5,20 @@ const BOND_TYPE = 'BOND';
 const HEALTH_CHECK_TYPE = 'HEALTH_CHECK';
 
 async function processBond({ ticker }) {
-  console.log('processing bond', ticker);
+  console.log('processing bond ', ticker);
   const bond = await Bond.find(ticker);
   await bond.calculateCurrentTAG();
   await bond.save();
 }
 
 async function processHealthCheck({ tickerList }) {
-  console.log('processing list', tickerList)
+  console.log('processing health check for ', tickerList);
+
+  for (let ticker of tickerList) {
+    await Job.create({ type: BOND_TYPE, ticker: ticker })
+  }
+
+  // await Job.create({ type: EMAIL_REPORT_TYPE, tickerList: tickerList})
 }
 
 // noinspection JSUnusedGlobalSymbols
