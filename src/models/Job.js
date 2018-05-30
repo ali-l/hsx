@@ -1,6 +1,6 @@
 // noinspection ES6CheckImport
 import DynamoDB from 'aws-sdk/clients/dynamodb'
-import { unixTimestamp } from '../utils'
+import {unixTimestamp} from '../utils'
 
 const client = new DynamoDB.DocumentClient({
   apiVersion: '2012-08-10',
@@ -13,7 +13,8 @@ function mapStreamRecord(streamRecord) {
     id: streamRecord.id.N,
     type: streamRecord.type.S,
     ticker: streamRecord.ticker && streamRecord.ticker.S,
-    tickerList: streamRecord.tickerList && (streamRecord.tickerList.SS || JSON.parse(streamRecord.tickerList.S))
+    tickerList: streamRecord.tickerList &&
+    (streamRecord.tickerList.SS || streamRecord.tickerList.S && JSON.parse(streamRecord.tickerList.S))
   }
 }
 
